@@ -54,11 +54,14 @@ class GameFrame:
 
 
     def enable_frame_buttons(self, turn):
+        print("enable buttons")
         for i in range(3):
             for j in range(3):
-                if (self.buttons[i][j]["text"]==""):
-                    print("button_text = ", i, j, "   ", self.buttons[i][j]["text"])
+                print("button_text ", i, j, "= ", self.buttons[i][j]["text"])
+                if (self.buttons[i][j]["text"] != "X" and self.buttons[i][j]["text"] != "O"):
                     self.buttons[i][j]["state"] = NORMAL
+                else:
+                    print("skipping enable of button: ", i, j)
                 
                 
         
