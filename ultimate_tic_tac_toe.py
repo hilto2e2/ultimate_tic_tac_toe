@@ -47,11 +47,20 @@ class GameFrame:
         for i in range(3):
             for j in range(3):
                 self.buttons[i][j]["state"] = DISABLED
-                if turn == "X":
-                    self.buttons[i][j].config(bg="green")
-                else:
-                    self.buttons[i][j].config(bg="blue")
-                    
+                #if turn == "X":
+                    #self.buttons[i][j].config(bg="green")
+               # else:
+                    #self.buttons[i][j].config(bg="blue")
+
+
+    def enable_frame_buttons(self, turn):
+        for i in range(3):
+            for j in range(3):
+                if (self.buttons[i][j]["text"]==""):
+                    print("button_text = ", i, j, "   ", self.buttons[i][j]["text"])
+                    self.buttons[i][j]["state"] = NORMAL
+                
+                
         
 ############### GameBoard Class #######################
 class GameBoard:
@@ -81,6 +90,20 @@ class GameBoard:
             elif(f[0][0].frame_winner==f[0][1].frame_winner==f[0][2].frame_winner==f[1][0].frame_winner==f[1][1].frame_winner==f[1][2].frame_winner==f[2][0].frame_winner==f[2][1].frame_winner==f[2][2].frame_winner==DISABLED):
                 messagebox.showinfo("Tied!!","The match ended in a draw")
                 self.reset_game()
+
+    def check_enable_frame(self, row, col): 
+        f = self.frames
+        for x in range(3):
+            for y in range(3):
+                if (x==row and y==col):
+                    print('frame enable', row , col)
+                    f[x][y]. enable_frame_buttons (self.turn)
+                else:
+                    f[x][y].disable_frame_buttons(self.turn)
+                    print("disabled frame: ", x, y)
+
+                
+                    
 
     def change_turn(self):
         print(self.turn)
@@ -119,6 +142,7 @@ def click(game_frame,row,col):
     val = game_frame.check_frame_winner(board.turn)
     print(val)
     board.check_winner()
+    board.check_enable_frame(row, col)
     board.change_turn()
     label.config(text=board.turn+"'s Chance")
         
