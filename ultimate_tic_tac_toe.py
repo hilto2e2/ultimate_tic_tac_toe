@@ -7,6 +7,7 @@ class GameFrame:
 
     def __init__(self, frame, row, col, color):
         self.frame_winner = "None"
+        self.frame_full = 0
         self.buttons = [[],[],[]]
         #print ("row=", row, "col=", col)
         self.frame = create_frame(frame, color)
@@ -20,7 +21,7 @@ class GameFrame:
                 self.buttons[i][j].grid(row=i,column=j)
 
     def check_frame_winner(self, turn):
-        b = self.buttons;
+        b = self.buttons
         for i in range(3):
             if(b[i][0]["text"]==b[i][1]["text"]==b[i][2]["text"]==turn or
                b[0][i]["text"]==b[1][i]["text"]==b[2][i]["text"]==turn):
@@ -35,6 +36,17 @@ class GameFrame:
             return turn
 
         return "None"
+
+    def check_full_frame(self):
+        b = self.buttons
+        for i in range(3):
+            for j in range (3):
+                if(b[i][j]["text"] != "X" and b[i][j]["text"] != "O"):
+                    self.frame_full = 0
+                    return "false"
+                    
+        self.frame_full=1
+        return "true"
     
     def disable_frame_buttons(self, turn):
         for i in range(3):
@@ -46,7 +58,7 @@ class GameFrame:
                     #self.buttons[i][j].config(bg="blue")
 
 
-    def enable_frame_buttons(self, turn):
+    def enable_frame_buttons(self):
         print("enable buttons")
         for i in range(3):
             for j in range(3):
@@ -56,8 +68,15 @@ class GameFrame:
                 else:
                     print("skipping enable of button: ", i, j)
                 
-                
-        
+    def reset_frame(self):
+        self.frame_winner = "None"
+        self.frame_full = 0
+        b = self.buttons
+        for i in range(3):
+            for j in range(3):
+                b[i][j]["text"] = ""
+
+        self.enable_frame_buttons()        
 ############### GameBoard Class #######################
 class GameBoard:
     colors = [['blue', 'yellow', 'red'], ['green', 'purple', 'black'], ['brown', 'magenta', 'pink']]
@@ -79,32 +98,43 @@ class GameBoard:
                f[0][i].frame_winner==f[1][i].frame_winner==f[2][i].frame_winner==self.turn):
                 messagebox.showinfo("Congrats!!","'"+self.turn+"' has won")
                 self.reset_game()
+                return "true"
             if(f[0][0].frame_winner==f[1][1].frame_winner==f[2][2].frame_winner==self.turn or
                f[0][2].frame_winner==f[1][1].frame_winner==f[2][0].frame_winner==self.turn):
                 messagebox.showinfo("Congrats!!","'"+self.turn+"' has won")
-                self.reset_game()   
+                self.reset_game()
+                return "true"
             elif(f[0][0].frame_winner==f[0][1].frame_winner==f[0][2].frame_winner==f[1][0].frame_winner==f[1][1].frame_winner==f[1][2].frame_winner==f[2][0].frame_winner==f[2][1].frame_winner==f[2][2].frame_winner==DISABLED):
                 messagebox.showinfo("Tied!!","The match ended in a draw")
                 self.reset_game()
+                return "true"
+            
+        return "false"
 
     def check_enable_frame(self, row, col): 
         f = self.frames
         #f_winner = f[row][col].check_frame_winner(self.turn)
+        f_full = f[row][col].check_full_frame()
         f_winner = f[row][col].frame_winner
         print("frame_winner = ", f_winner)
+        print("frame_full = ", f_full)
         for x in range(3):
             for y in range(3):
-                if (f_winner != "None"):
-                    if (f[x][y].frame_winner == "None"):
-                        f[x][y].enable_frame_buttons(self.turn)
+                if (f_winner != "None" or f_full=="true"):
+                    if (f[x][y].frame_winner == "None" and f[x][y].check_full_frame() =="false"):
+                        f[x][y].enable_frame_buttons()
+                        f[x][y].frame.config(bg="red")
                     else:
                         f[x][y].disable_frame_buttons(self.turn)
+                        f[x][y].frame.config(bg="white")
                 elif (x==row and y==col):
                     print('frame enable', row , col)
-                    f[x][y].enable_frame_buttons (self.turn)
+                    f[x][y].enable_frame_buttons()
+                    f[x][y].frame.config(bg="red")
                 else:
                     f[x][y].disable_frame_buttons(self.turn)
                     print("disabled frame: ", x, y)
+                    f[x][y].frame.config(bg="white")
 
                 
                     
@@ -117,14 +147,14 @@ class GameBoard:
             self.turn = 'X'
         
     def reset_game(self):
+        f = self.frames
         for i in range(3):
             for j in range(3):
-                self.frames[i][j].reset_frame()
+                f[i][j].reset_frame()
+                f[i][j].frame.config(bg="white")
                 
         self.turn=random.choice(['O','X'])
 
-    #def disable_frames:
-        #TODO
                 
 ############### Global Functions #######################
 def create_button(frame):
@@ -140,15 +170,16 @@ def create_frame(root, color):
 def click(game_frame,row,col):
     print("click detected: ", row, col)
     print("frame: ", game_frame.frame)
-    game_frame.frame.config(bg="yellow")
+    game_frame.frame.config(bg="red")
     game_frame.buttons[row][col].config(text=board.turn,state=DISABLED,disabledforeground=colour[board.turn])
     print("here:"+board.turn)
     val = game_frame.check_frame_winner(board.turn)
     print(val)
-    board.check_winner()
-    board.check_enable_frame(row, col)
-    board.change_turn()
-    label.config(text=board.turn+"'s Chance")
+    has_winner = board.check_winner()
+    if (has_winner == "false"):
+        board.check_enable_frame(row, col)
+        board.change_turn()
+        label.config(text=board.turn+"'s Turn")
         
 ###############   Main Program #################
 root=Tk()                   #Window defined
@@ -160,7 +191,11 @@ root.title("Tic-Tac-Toe")   #Title given
 colour={'O':"deep sky blue",'X':"lawn green"}
 board = GameBoard(root)
 
-label=Label(text=board.turn+"'s Chance",font=('arial',20,'bold'))
+reset_button = Button(root, padx=1, bg="blue", width=6, text="RESET", font=('arial', 20, 'bold'), bd=5)
+reset_button.config(command= lambda :board.reset_game())
+reset_button.grid(row=5, column=5, columnspan=5)
+
+label=Label(text=board.turn+"'s Turn",font=('arial',20,'bold'))
 label.grid(row=3,column=0,columnspan=3)
 root.mainloop()
 
