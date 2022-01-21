@@ -6,7 +6,7 @@ import random
 class GameFrame:
 
     def __init__(self, frame, row, col, color):
-        self.frame_winner = ""
+        self.frame_winner = "None"
         self.buttons = [[],[],[]]
         #print ("row=", row, "col=", col)
         self.frame = create_frame(frame, color)
@@ -18,9 +18,6 @@ class GameFrame:
                 self.buttons[i].append(create_button(self.frame))
                 self.buttons[i][j].config(command= lambda game_frame=self,row=i,col=j:click(game_frame,row,col))
                 self.buttons[i][j].grid(row=i,column=j)
-                #print ("buttons_cnt[0]=", len(self.buttons[0]))
-                #print ("buttons_cnt[1]=", len(self.buttons[1]))
-                #print ("buttons_cnt[2]=", len(self.buttons[2]))
 
     def check_frame_winner(self, turn):
         b = self.buttons;
@@ -33,10 +30,6 @@ class GameFrame:
                 
         if(b[0][0]["text"]==b[1][1]["text"]==b[2][2]["text"]==turn or
            b[0][2]["text"]==b[1][1]["text"]==b[2][0]["text"]==turn):
-            self.frame_winner = turn
-            self.disable_frame_buttons(turn)
-            return turn
-        elif(b[0][0]["state"]==b[0][1]["state"]==b[0][2]["state"]==b[1][0]["state"]==b[1][1]["state"]==b[1][2]["state"]==b[2][0]["state"]==b[2][1]["state"]==b[2][2]["state"]==DISABLED):
             self.frame_winner = turn
             self.disable_frame_buttons(turn)
             return turn
@@ -96,11 +89,19 @@ class GameBoard:
 
     def check_enable_frame(self, row, col): 
         f = self.frames
+        #f_winner = f[row][col].check_frame_winner(self.turn)
+        f_winner = f[row][col].frame_winner
+        print("frame_winner = ", f_winner)
         for x in range(3):
             for y in range(3):
-                if (x==row and y==col):
+                if (f_winner != "None"):
+                    if (f[x][y].frame_winner == "None"):
+                        f[x][y].enable_frame_buttons(self.turn)
+                    else:
+                        f[x][y].disable_frame_buttons(self.turn)
+                elif (x==row and y==col):
                     print('frame enable', row , col)
-                    f[x][y]. enable_frame_buttons (self.turn)
+                    f[x][y].enable_frame_buttons (self.turn)
                 else:
                     f[x][y].disable_frame_buttons(self.turn)
                     print("disabled frame: ", x, y)
