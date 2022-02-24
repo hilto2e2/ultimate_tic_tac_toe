@@ -159,7 +159,7 @@ class GameBoard:
 ############### Global Functions #######################
 def create_button(frame):
     #b = Button(frame, padx=1, bg="papaya whip", width=3, text="   ", font=('arial',32,'bold'), relief="sunken", bd=5)
-    b = Button(frame, padx=1, bg="black", width=3, text="   ", font=('arial',32,'bold'), relief="sunken", bd=5)
+    b = Button(frame, padx=1, bg="black", width=2, text="   ", font=('arial',32,'bold'), relief="sunken", bd=5)
     return b
 
 def create_frame(root, color):
@@ -184,7 +184,7 @@ def click(game_frame,row,col):
 ###############   Main Program #################
 root=Tk()                   #Window defined
 root.title("Tic-Tac-Toe")   #Title given
-#root.geometry("1000x1000")
+root.geometry("800x800")
 #root.rowconfigure([0,1,2], weight=1)
 #root.columnconfigure([0,1,2], weight=1)
 
@@ -193,9 +193,9 @@ board = GameBoard(root)
 
 reset_button = Button(root, padx=1, bg="blue", width=6, text="RESET", font=('arial', 20, 'bold'), bd=5)
 reset_button.config(command= lambda :board.reset_game())
-reset_button.grid(row=5, column=5, columnspan=5)
+reset_button.grid(row=2, column=10, columnspan=10)
 
 label=Label(text=board.turn+"'s Turn",font=('arial',20,'bold'))
-label.grid(row=3,column=0,columnspan=3)
+label.grid(row=1,column=10,columnspan=10)
 root.mainloop()
 
